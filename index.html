@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataLab Junior — Data Mining & AI Simulator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2d3748;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: white;
+            padding: 12px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header h1 { font-size: 20px; color: #2d3748; font-weight: 600; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .lang-toggle {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .lang-toggle:hover { background: #cbd5e0; }
+        .header-actions button {
+            background: #5a67d8;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .header-actions button:hover { background: #4c56ad; }
+        .reset-btn { background: #718096 !important; }
+        .reset-btn:hover { background: #4a5568 !important; }
+
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        @media (max-width: 1024px) {
+            .app-container { flex-direction: column; }
+            .arrow { transform: rotate(90deg); margin: 8px 0; }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 20px;
+            flex: 1;
+            min-width: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid;
+        }
+        .card-input .card-title { border-color: #4299e1; color: #3182ce; }
+        .card-process .card-title { border-color: #ed8936; color: #dd6b20; }
+        .card-output .card-title { border-color: #38a169; color: #2f855a; }
+
+        .arrow {
+            font-size: 32px;
+            color: #a0aec0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Buttons */
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        button:hover { background: #45a049; }
+        .btn-blue { background: #4299e1; }
+        .btn-blue:hover { background: #3182ce; }
+        .btn-amber { background: #ed8936; }
+        .btn-amber:hover { background: #dd6b20; }
+        .btn-purple { background: #805ad5; }
+        .btn-purple:hover { background: #6b46c1; }
+        .btn-sm { padding: 4px 8px; font-size: 12px; }
+        .btn-full { width: 100%; }
+
+        /* Sample Datasets */
+        .dataset-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .dataset-btn {
+            background: #ebf8ff;
+            color: #2b6cb0;
+            border: 1px solid #bee3f8;
+            padding: 8px;
+            font-size: 12px;
+            text-align: center;
+        }
+        .dataset-btn:hover { background: #bee3f8; }
+
+        /* Data Table */
+        .table-container {
+            max-height: 240px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+        th { background: #f7fafc; font-weight: 600; position: sticky; top: 0; }
+        td input { border: none; width: 100%; padding: 0; background: transparent; font-size: 13px; }
+        .delete-row { background: none; border: none; color: #e53e3e; cursor: pointer; font-size: 16px; padding: 0 4px; }
+        .dirty-cell { background: #fefcbf; }
+        .duplicate-row { background: #fed7d7; }
+        .outlier-cell { background: #fbd38d; }
+
+        /* CSV Input */
+        .csv-section { margin-top: 12px; }
+        .csv-section input[type="file"] { font-size: 13px; }
+        .csv-section textarea { font-size: 13px; height: 60px; resize: vertical; }
+
+        /* Cleaning */
+        .cleaning-options label { display: block; margin-bottom: 8px; font-size: 14px; }
+        .cleaning-options input { margin-right: 6px; }
+        .status-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 6px 10px;
+            background: #e6fffa;
+            color: #2d7772;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* Method Selection */
+        .method-options { margin-top: 12px; }
+        .method-options label { display: block; margin-bottom: 6px; font-size: 14px; }
+        .method-options input { margin-right: 6px; }
+
+        /* Advanced Settings */
+        .advanced-toggle {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .advanced-toggle:hover { background: #edf2f7; }
+        .advanced-content {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+            display: none;
+        }
+        .advanced-content.show { display: block; }
+
+        /* Train Button */
+        .train-btn {
+            background: #805ad5;
+            margin-top: 16px;
+            padding: 12px;
+            font-size: 16px;
+        }
+        .train-btn:hover { background: #6b46c1; }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin-top: 12px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            line-height: 20px;
+        }
+
+        /* Chart */
+        .chart-box {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            min-height: 200px;
+        }
+
+        /* Live Preview */
+        .preview-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f7fafc;
+            margin-bottom: 16px;
+        }
+        .preview-box h3 { font-size: 14px; color: #2f855a; margin-bottom: 8px; }
+        .slider-group { margin-bottom: 12px; }
+        .slider-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+        .slider-group input[type="range"] { width: 100%; }
+        .confidence-item { display: flex; align-items: center; margin-bottom: 6px; }
+        .confidence-label { width: 70px; font-size: 13px; }
+        .confidence-bar { flex: 1; height: 18px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .confidence-fill { height: 100%; background: #4299e1; width: 0%; transition: width 0.3s; text-align: right; padding-right: 6px; color: white; font-size: 11px; line-height: 18px; }
+
+        /* Insight Box */
+        .insight-box {
+            background: #e6fffa;
+            border: 1px solid #38b2ac;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        .insight-box h3 { font-size: 14px; color: #2d7772; margin-bottom: 6px; }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #718096;
+        }
+        .modal-content h2 { margin-bottom: 12px; }
+        .modal-content h3 { margin-top: 16px; margin-bottom: 8px; color: #2d3748; }
+        .modal-content ul { margin-left: 20px; }
+        .modal-content li { margin-bottom: 6px; font-size: 14px; }
+
+        /* Section headers */
+        .section-title { font-size: 14px; font-weight: 600; color: #4a5568; margin: 12px 0 8px; }
+        .collapse-toggle {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .collapse-toggle:hover { background: #edf2f7; }
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>DataLab Junior</h1>
+        <div class="header-actions">
+            <button class="lang-toggle" id="lang-toggle">தமிழ்</button>
+            <button id="guide-btn">Lab Guide</button>
+            <button class="reset-btn" id="reset-btn">Reset</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Card 1: Data Input -->
+        <div class="card card-input">
+            <div class="card-title" id="title-input">Step 1: Data Input</div>
+            
+            <div class="section-title" id="label-samples">Sample Datasets</div>
+            <div class="dataset-grid">
+                <button class="dataset-btn" data-dataset="messy-exam" id="btn-messy">Messy Exam Marks</button>
+                <button class="dataset-btn" data-dataset="study-hours" id="btn-study">Study Hours vs Marks</button>
+                <button class="dataset-btn" data-dataset="fruit" id="btn-fruit">Fruit Classifier</button>
+                <button class="dataset-btn" data-dataset="customers" id="btn-customers">Shop Customers</button>
+                <button class="dataset-btn" data-dataset="canteen" id="btn-canteen">Canteen Sales</button>
+                <button class="dataset-btn" data-dataset="marketbasket" id="btn-market">Market Basket</button>
+                <button class="dataset-btn" data-dataset="weather" id="btn-weather">Weather (Decision Tree)</button>
+                <button class="dataset-btn" data-dataset="spam" id="btn-spam">Email Spam (Naive Bayes)</button>
+                <button class="dataset-btn" data-dataset="missing" id="btn-missing">Missing Values Demo</button>
+                <button class="dataset-btn" data-dataset="normalize" id="btn-normalize">Normalization Demo</button>
+            </div>
+
+            <div class="section-title" id="label-table">Data Table</div>
+            <div class="table-container">
+                <table id="data-table">
+                    <thead><tr id="table-head"></tr></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+            <button class="btn-sm btn-blue" id="add-row-btn">+ Add Row</button>
+
+            <div class="section-title" id="label-csv">CSV Upload / Paste</div>
+            <div class="csv-section">
+                <input type="file" id="csv-file" accept=".csv">
+                <textarea id="csv-text" placeholder="Paste CSV here..."></textarea>
+                <button class="btn-sm btn-blue" id="load-csv-btn">Load Data</button>
+            </div>
+        </div>
+
+        <div class="arrow">➔</div>
+
+        <!-- Card 2: Process & Train -->
+        <div class="card card-process">
+            <div class="card-title" id="title-process">Step 2: Clean & Train Model</div>
+            <button class="collapse-toggle" id="process-collapse-toggle">Show Settings ▼</button>
+            <div class="collapsible-content" id="process-content" style="display:none;">
+            <div class="section-title" id="label-cleaning">Data Cleaning</div>
+            <div class="cleaning-options">
+                <label><input type="checkbox" id="fix-missing"> <span id="lbl-fix-missing">Fix Missing Values</span></label>
+                <label><input type="checkbox" id="remove-dup"> <span id="lbl-remove-dup">Remove Duplicates & Outliers</span></label>
+            </div>
+            <span class="status-badge" id="clean-status"></span>
+
+            <div class="section-title" id="label-method">Mining Method</div>
+            <div class="method-options">
+                <label><input type="radio" name="method" value="group" checked> <span id="lbl-group">Group & Summarize</span></label>
+                <label><input type="radio" name="method" value="trend"> <span id="lbl-trend">Trend & Prediction (Linear Regression)</span></label>
+                <label><input type="radio" name="method" value="classify"> <span id="lbl-classify">Classification (KNN)</span></label>
+                <label><input type="radio" name="method" value="cluster"> <span id="lbl-cluster">Clustering (K-Means)</span></label>
+                <div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;">
+                    <label style="font-size:12px;color:#718096;">More Methods:</label>
+                    <label><input type="radio" name="method" value="association"> <span id="lbl-association">Association Rules (Market Basket)</span></label>
+                    <label><input type="radio" name="method" value="decisiontree"> <span id="lbl-decisiontree">Decision Tree</span></label>
+                    <label><input type="radio" name="method" value="naivebayes"> <span id="lbl-naivebayes">Naive Bayes</span></label>
+                    <label><input type="radio" name="method" value="imputation"> <span id="lbl-imputation">Missing Value Imputation</span></label>
+                    <label><input type="radio" name="method" value="normalization"> <span id="lbl-normalization">Normalization</span></label>
+                    <label><input type="radio" name="method" value="outlierdemo"> <span id="lbl-outlierdemo">Outlier & Mean vs Median Demo</span></label>
+                </div>
+            </div>
+
+            <button class="advanced-toggle" id="adv-toggle">Advanced Settings ▼</button>
+            <div class="advanced-content" id="adv-content">
+                <label>K value for Clustering:</label>
+                <div style="margin-top: 6px;">
+                    <label><input type="radio" name="kval" value="2" checked> 2</label>
+                    <label><input type="radio" name="kval" value="3"> 3</label>
+                    <label><input type="radio" name="kval" value="4"> 4</label>
+                </div>
+            </div>
+
+            <button class="train-btn btn-full" id="train-btn">Train / Run Model</button>
+            <div class="progress-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar">0%</div>
+            </div>
+            </div>
+        </div>
+
+        <div class="arrow">➔</div>
+
+        <!-- Card 3: Visuals & Preview -->
+        <div class="card card-output">
+            <div class="card-title" id="title-output">Step 3: Visuals & Preview</div>
+
+            <div class="chart-box">
+                <canvas id="chart-canvas"></canvas>
+            </div>
+
+            <div class="preview-box" id="preview-box">
+                <h3>Live Test Panel</h3>
+                <p style="font-size: 13px; color: #718096;">Train a model to enable live testing.</p>
+            </div>
+
+            <div class="insight-box" id="insight-box">
+                <h3>Key Insight</h3>
+                <p style="font-size: 13px;">Run a data mining operation to see insights here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lab Guide Modal -->
+    <div class="modal" id="guide-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <h2>Lab Guide</h2>
+            <p>Explore data mining and AI concepts with this interactive simulator.</p>
+
+            <h3>1. Data Cleaning</h3>
+            <ul>
+                <li>Load "Messy Exam Marks" dataset.</li>
+                <li>Notice missing values, duplicates, and outliers.</li>
+                <li>Toggle cleaning options and see data transform.</li>
+            </ul>
+
+            <h3>2. Trend & Prediction</h3>
+            <ul>
+                <li>Load "Study Hours vs Marks" dataset.</li>
+                <li>Select "Trend & Prediction" method and train.</li>
+                <li>Drag the slider to see predicted marks.</li>
+            </ul>
+
+            <h3>3. Classification</h3>
+            <ul>
+                <li>Load "Fruit Classifier" dataset.</li>
+                <li>Select "Classification" and train.</li>
+                <li>Adjust weight and sweetness sliders to classify fruits.</li>
+            </ul>
+
+            <h3>4. Clustering</h3>
+            <ul>
+                <li>Load "Shop Customers" dataset.</li>
+                <li>Select "Clustering" and choose K value.</li>
+                <li>Train to see customer groups.</li>
+            </ul>
+
+            <h3>5. Group & Summarize</h3>
+            <ul>
+                <li>Load "Canteen Sales" dataset.</li>
+                <li>Select "Group & Summarize" and train.</li>
+                <li>See aggregated sales by item.</li>
+            </ul>
+
+            <h3>6. Data Bias Experiment</h3>
+            <ul>
+                <li>Load any dataset and delete rows of one class.</li>
+                <li>Train again and observe how predictions change.</li>
+            </ul>
+
+            <h3>7. Association Rules (Market Basket)</h3>
+            <ul>
+                <li>Load "Market Basket" dataset.</li>
+                <li>Select "Association Rules" method and train.</li>
+                <li>See which items are frequently bought together.</li>
+            </ul>
+
+            <h3>8. Decision Tree</h3>
+            <ul>
+                <li>Load "Weather" dataset.</li>
+                <li>Select "Decision Tree" method and train.</li>
+                <li>See how the tree splits data to predict "Play".</li>
+            </ul>
+
+            <h3>9. Naive Bayes</h3>
+            <ul>
+                <li>Load "Email Spam" dataset.</li>
+                <li>Select "Naive Bayes" method and train.</li>
+                <li>Use the classify button with word features (0 or 1).</li>
+            </ul>
+
+            <h3>10. Missing Value Imputation</h3>
+            <ul>
+                <li>Load "Missing Values Demo" dataset.</li>
+                <li>Select "Missing Value Imputation" method and train.</li>
+                <li>See mean and median for each column with missing counts.</li>
+            </ul>
+
+            <h3>11. Normalization</h3>
+            <ul>
+                <li>Load "Normalization Demo" dataset.</li>
+                <li>Select "Normalization" method and train.</li>
+                <li>Compare original vs normalized data points.</li>
+            </ul>
+
+            <h3>12. Outlier & Mean vs Median Demo</h3>
+            <ul>
+                <li>Load any numeric dataset (e.g., "Messy Exam Marks").</li>
+                <li>Select "Outlier & Mean vs Median Demo" and train.</li>
+                <li>Observe how mean is affected by outliers while median stays stable.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Language translations
+        const translations = {
+            en: {
+                title: "DataLab Junior",
+                step1: "Step 1: Data Input",
+                step2: "Step 2: Clean & Train Model",
+                step3: "Step 3: Visuals & Preview",
+                samples: "Sample Datasets",
+                table: "Data Table",
+                csv: "CSV Upload / Paste",
+                addRow: "+ Add Row",
+                loadCsv: "Load Data",
+                csvPlaceholder: "Paste CSV here...",
+                cleaning: "Data Cleaning",
+                fixMissing: "Fix Missing Values",
+                removeDup: "Remove Duplicates & Outliers",
+                method: "Mining Method",
+                group: "Group & Summarize",
+                trend: "Trend & Prediction (Linear Regression)",
+                classify: "Classification (KNN)",
+                cluster: "Clustering (K-Means)",
+                association: "Association Rules (Market Basket)",
+                decisiontree: "Decision Tree",
+                naivebayes: "Naive Bayes",
+                imputation: "Missing Value Imputation",
+                normalization: "Normalization",
+                outlierdemo: "Outlier & Mean vs Median Demo",
+                advanced: "Advanced Settings",
+                train: "Train / Run Model",
+                liveTest: "Live Test Panel",
+                liveTestDefault: "Train a model to enable live testing.",
+                insight: "Key Insight",
+                insightDefault: "Run a data mining operation to see insights here.",
+                guide: "Lab Guide",
+                reset: "Reset",
+                langToggle: "தமிழ்"
+            },
+            ta: {
+                title: "டேட்டாலேப் ஜூனியர்",
+                step1: "படி 1: தரவு உள்ளீடு",
+                step2: "படி 2: சுத்திகரிப்பு & மாதிரி உருவாக்கம்",
+                step3: "படி 3: காட்சிப்படுத்தல் & பரிசோதனை",
+                samples: "மாதிரி தரவுகள்",
+                table: "தரவு அட்டவணை",
+                csv: "CSV பதிவேற்றம் / ஒட்டு",
+                addRow: "+ வரி சேர்",
+                loadCsv: "தரவு ஏற்று",
+                csvPlaceholder: "CSV இங்கே ஒட்டவும்...",
+                cleaning: "தரவு சுத்திகரிப்பு",
+                fixMissing: "விடுபட்ட மதிப்புகளைச் சரிசெய்",
+                removeDup: "இரட்டிப்பு & பிழைகளை நீக்கு",
+                method: "செய்முறை தேர்வு",
+                group: "குழுவாக்கம் & சராசரி",
+                trend: "தொடர்பு & கணிப்பு (நேரியல் பின்னோக்கி)",
+                classify: "வகைப்பாடு (KNN)",
+                cluster: "குழு பிரித்தல் (K-Means)",
+                association: "இணைப்பு விதிகள் (சந்தை கூடை)",
+                decisiontree: "முடிவு மரம்",
+                naivebayes: "நாய்வ் பேய்ஸ்",
+                imputation: "விடுபட்ட மதிப்பு நிரப்பல்",
+                normalization: "இயல்பாக்கம்",
+                outlierdemo: "வெளிப்புற மதிப்பு & சராசரி vs மீடியன்",
+                advanced: "மேம்பட்ட அமைப்புகள்",
+                train: "மாதிரியை இயக்கு",
+                liveTest: "நேரடி பரிசோதனை பலகை",
+                liveTestDefault: "மாதிரியை இயக்கவும் நேரடி பரிசோதனைக்கு.",
+                insight: "முக்கிய கண்டுபிடிப்பு",
+                insightDefault: "தரவு செயல்பாட்டை இயக்கவும் கண்டுபிடிப்புகளைக் காண.",
+                guide: "செய்முறை வழிகாட்டி",
+                reset: "மீட்டமை",
+                langToggle: "English"
+            }
+        };
+
+        let currentLang = 'en';
+        let currentData = [];
+        let originalData = [];
+        let cleanedData = [];
+        let renderedData = [];
+        let modelResults = {};
+        let dataChart = null;
+
+        const datasets = {
+            'messy-exam': {
+                headers: ['Student', 'Math', 'Science', 'English'],
+                data: [
+                    { Student: 'Alice', Math: 85, Science: 92, English: 78 },
+                    { Student: 'Bob', Math: 70, Science: 65, English: null },
+                    { Student: 'Charlie', Math: 90, Science: 88, English: 95 },
+                    { Student: 'Alice', Math: 85, Science: 92, English: 78 },
+                    { Student: 'David', Math: 950, Science: 70, English: 80 },
+                    { Student: 'Eve', Math: 60, Science: null, English: 70 },
+                ]
+            },
+            'study-hours': {
+                headers: ['Student', 'Study_Hours', 'Exam_Marks'],
+                data: [
+                    { Student: 'A', Study_Hours: 2, Exam_Marks: 50 },
+                    { Student: 'B', Study_Hours: 3, Exam_Marks: 60 },
+                    { Student: 'C', Study_Hours: 4, Exam_Marks: 70 },
+                    { Student: 'D', Study_Hours: 5, Exam_Marks: 80 },
+                    { Student: 'E', Study_Hours: 6, Exam_Marks: 90 },
+                    { Student: 'F', Study_Hours: 1, Exam_Marks: 40 },
+                ]
+            },
+            'fruit': {
+                headers: ['Fruit', 'Weight_g', 'Sweetness_1_10'],
+                data: [
+                    { Fruit: 'Lemon', Weight_g: 100, Sweetness_1_10: 3 },
+                    { Fruit: 'Lemon', Weight_g: 110, Sweetness_1_10: 4 },
+                    { Fruit: 'Orange', Weight_g: 150, Sweetness_1_10: 7 },
+                    { Fruit: 'Orange', Weight_g: 160, Sweetness_1_10: 8 },
+                    { Fruit: 'Mango', Weight_g: 200, Sweetness_1_10: 9 },
+                    { Fruit: 'Mango', Weight_g: 210, Sweetness_1_10: 10 },
+                ]
+            },
+            'customers': {
+                headers: ['Customer', 'Items_Bought', 'Total_Spend'],
+                data: [
+                    { Customer: 'C1', Items_Bought: 5, Total_Spend: 50 },
+                    { Customer: 'C2', Items_Bought: 3, Total_Spend: 30 },
+                    { Customer: 'C3', Items_Bought: 10, Total_Spend: 120 },
+                    { Customer: 'C4', Items_Bought: 6, Total_Spend: 60 },
+                    { Customer: 'C5', Items_Bought: 2, Total_Spend: 25 },
+                    { Customer: 'C6', Items_Bought: 9, Total_Spend: 100 },
+                ]
+            },
+            'canteen': {
+                headers: ['Day', 'Item', 'Quantity_Sold'],
+                data: [
+                    { Day: 'Monday', Item: 'Idli', Quantity_Sold: 50 },
+                    { Day: 'Monday', Item: 'Vada', Quantity_Sold: 30 },
+                    { Day: 'Tuesday', Item: 'Idli', Quantity_Sold: 45 },
+                    { Day: 'Tuesday', Item: 'Samosa', Quantity_Sold: 20 },
+                    { Day: 'Wednesday', Item: 'Juice', Quantity_Sold: 60 },
+                    { Day: 'Wednesday', Item: 'Idli', Quantity_Sold: 55 },
+                ]
+            },
+            'marketbasket': {
+                headers: ['Transaction', 'Items'],
+                data: [
+                    { Transaction: 'T1', Items: 'Bread,Milk,Butter' },
+                    { Transaction: 'T2', Items: 'Bread,Milk' },
+                    { Transaction: 'T3', Items: 'Milk,Butter,Eggs' },
+                    { Transaction: 'T4', Items: 'Bread,Butter' },
+                    { Transaction: 'T5', Items: 'Milk,Eggs' },
+                    { Transaction: 'T6', Items: 'Bread,Milk,Butter,Eggs' },
+                ]
+            },
+            'weather': {
+                headers: ['Outlook', 'Temperature', 'Humidity', 'Wind', 'Play'],
+                data: [
+                    { Outlook: 'Sunny', Temperature: 'Hot', Humidity: 'High', Wind: 'Weak', Play: 'No' },
+                    { Outlook: 'Sunny', Temperature: 'Hot', Humidity: 'High', Wind: 'Strong', Play: 'No' },
+                    { Outlook: 'Overcast', Temperature: 'Hot', Humidity: 'High', Wind: 'Weak', Play: 'Yes' },
+                    { Outlook: 'Rain', Temperature: 'Mild', Humidity: 'High', Wind: 'Weak', Play: 'Yes' },
+                    { Outlook: 'Rain', Temperature: 'Cool', Humidity: 'Normal', Wind: 'Weak', Play: 'Yes' },
+                    { Outlook: 'Rain', Temperature: 'Cool', Humidity: 'Normal', Wind: 'Strong', Play: 'No' },
+                    { Outlook: 'Overcast', Temperature: 'Cool', Humidity: 'Normal', Wind: 'Strong', Play: 'Yes' },
+                    { Outlook: 'Sunny', Temperature: 'Mild', Humidity: 'High', Wind: 'Weak', Play: 'No' },
+                    { Outlook: 'Sunny', Temperature: 'Cool', Humidity: 'Normal', Wind: 'Weak', Play: 'Yes' },
+                    { Outlook: 'Rain', Temperature: 'Mild', Humidity: 'Normal', Wind: 'Weak', Play: 'Yes' },
+                ]
+            },
+            'spam': {
+                headers: ['Email', 'Word1', 'Word2', 'Word3', 'Label'],
+                data: [
+                    { Email: 'E1', Word1: 1, Word2: 0, Word3: 1, Label: 'Spam' },
+                    { Email: 'E2', Word1: 0, Word2: 1, Word3: 0, Label: 'NotSpam' },
+                    { Email: 'E3', Word1: 1, Word2: 1, Word3: 1, Label: 'Spam' },
+                    { Email: 'E4', Word1: 0, Word2: 0, Word3: 0, Label: 'NotSpam' },
+                    { Email: 'E5', Word1: 1, Word2: 0, Word3: 0, Label: 'Spam' },
+                    { Email: 'E6', Word1: 0, Word2: 1, Word3: 1, Label: 'NotSpam' },
+                ]
+            },
+            'missing': {
+                headers: ['Student', 'Math', 'Science', 'English'],
+                data: [
+                    { Student: 'Alice', Math: 85, Science: 92, English: 78 },
+                    { Student: 'Bob', Math: null, Science: 65, English: 80 },
+                    { Student: 'Charlie', Math: 90, Science: null, English: 95 },
+                    { Student: 'David', Math: 75, Science: 70, English: null },
+                    { Student: 'Eve', Math: 60, Science: 88, English: 70 },
+                ]
+            },
+            'normalize': {
+                headers: ['Student', 'Age', 'Height_cm', 'Weight_kg'],
+                data: [
+                    { Student: 'A', Age: 18, Height_cm: 165, Weight_kg: 55 },
+                    { Student: 'B', Age: 20, Height_cm: 175, Weight_kg: 70 },
+                    { Student: 'C', Age: 19, Height_cm: 160, Weight_kg: 50 },
+                    { Student: 'D', Age: 21, Height_cm: 180, Weight_kg: 80 },
+                    { Student: 'E', Age: 18, Height_cm: 170, Weight_kg: 65 },
+                ]
+            }
+        };
+
+        function t(key) { return translations[currentLang][key]; }
+
+        function applyLanguage() {
+            document.getElementById('title-input').textContent = t('step1');
+            document.getElementById('title-process').textContent = t('step2');
+            document.getElementById('title-output').textContent = t('step3');
+            document.getElementById('label-samples').textContent = t('samples');
+            document.getElementById('label-table').textContent = t('table');
+            document.getElementById('label-csv').textContent = t('csv');
+            document.getElementById('add-row-btn').textContent = t('addRow');
+            document.getElementById('load-csv-btn').textContent = t('loadCsv');
+            document.getElementById('csv-text').placeholder = t('csvPlaceholder');
+            document.getElementById('label-cleaning').textContent = t('cleaning');
+            document.getElementById('lbl-fix-missing').textContent = t('fixMissing');
+            document.getElementById('lbl-remove-dup').textContent = t('removeDup');
+            document.getElementById('label-method').textContent = t('method');
+            document.getElementById('lbl-group').textContent = t('group');
+            document.getElementById('lbl-trend').textContent = t('trend');
+            document.getElementById('lbl-classify').textContent = t('classify');
+            document.getElementById('lbl-cluster').textContent = t('cluster');
+            document.getElementById('lbl-association').textContent = t('association');
+            document.getElementById('lbl-decisiontree').textContent = t('decisiontree');
+            document.getElementById('lbl-naivebayes').textContent = t('naivebayes');
+            document.getElementById('lbl-imputation').textContent = t('imputation');
+            document.getElementById('lbl-normalization').textContent = t('normalization');
+            document.getElementById('lbl-outlierdemo').textContent = t('outlierdemo');
+            document.getElementById('adv-toggle').textContent = t('advanced') + ' ▼';
+            document.getElementById('train-btn').textContent = t('train');
+            document.querySelector('.preview-box h3').textContent = t('liveTest');
+            document.getElementById('insight-box').querySelector('h3').textContent = t('insight');
+            document.getElementById('guide-btn').textContent = t('guide');
+            document.getElementById('reset-btn').textContent = t('reset');
+            document.getElementById('lang-toggle').textContent = t('langToggle');
+            document.querySelector('header h1').textContent = t('title');
+        }
+
+        // DOM refs
+        const DOM = {
+            langToggle: document.getElementById('lang-toggle'),
+            guideBtn: document.getElementById('guide-btn'),
+            resetBtn: document.getElementById('reset-btn'),
+            guideModal: document.getElementById('guide-modal'),
+            modalClose: document.getElementById('modal-close'),
+            datasetBtns: document.querySelectorAll('.dataset-btn'),
+            tableHead: document.getElementById('table-head'),
+            tableBody: document.getElementById('table-body'),
+            addRowBtn: document.getElementById('add-row-btn'),
+            csvFile: document.getElementById('csv-file'),
+            csvText: document.getElementById('csv-text'),
+            loadCsvBtn: document.getElementById('load-csv-btn'),
+            fixMissing: document.getElementById('fix-missing'),
+            removeDup: document.getElementById('remove-dup'),
+            cleanStatus: document.getElementById('clean-status'),
+            methodRadios: document.querySelectorAll('input[name="method"]'),
+            advToggle: document.getElementById('adv-toggle'),
+            advContent: document.getElementById('adv-content'),
+            kvalRadios: document.querySelectorAll('input[name="kval"]'),
+            trainBtn: document.getElementById('train-btn'),
+            progressContainer: document.getElementById('progress-container'),
+            progressBar: document.getElementById('progress-bar'),
+            chartCanvas: document.getElementById('chart-canvas'),
+            previewBox: document.getElementById('preview-box'),
+            insightBox: document.getElementById('insight-box'),
+        };
+
+        // Render table
+        function renderTable(data) {
+            renderedData = JSON.parse(JSON.stringify(data));
+            DOM.tableHead.innerHTML = '';
+            DOM.tableBody.innerHTML = '';
+            if (data.length === 0) { DOM.tableHead.innerHTML = '<th>No data</th>'; return; }
+            const headers = Object.keys(data[0]);
+            headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; DOM.tableHead.appendChild(th); });
+            const ath = document.createElement('th'); ath.textContent = '×'; DOM.tableHead.appendChild(ath);
+            data.forEach((row, i) => {
+                const tr = document.createElement('tr');
+                tr.dataset.row = i;
+                headers.forEach(h => {
+                    const td = document.createElement('td');
+                    const inp = document.createElement('input');
+                    inp.type = 'text';
+                    inp.value = row[h] === null ? '' : row[h];
+                    inp.dataset.h = h;
+                    td.appendChild(inp);
+                    tr.appendChild(td);
+                });
+                const atd = document.createElement('td');
+                const del = document.createElement('button');
+                del.className = 'delete-row';
+                del.textContent = '×';
+                atd.appendChild(del);
+                tr.appendChild(atd);
+                DOM.tableBody.appendChild(tr);
+            });
+            highlightDirty();
+        }
+
+        function highlightDirty() {
+            DOM.tableBody.querySelectorAll('.dirty-cell,.duplicate-row,.outlier-cell').forEach(e => e.classList.remove('dirty-cell','duplicate-row','outlier-cell'));
+            if (renderedData.length === 0) return;
+            renderedData.forEach((row, i) => {
+                if (!DOM.tableBody.rows[i]) return;
+                Object.keys(row).forEach(h => {
+                    if (row[h] === null || String(row[h]).trim() === '') {
+                        const input = DOM.tableBody.rows[i].querySelector(`td input[data-h="${h}"]`);
+                        if (input) input.parentNode.classList.add('dirty-cell');
+                    }
+                });
+            });
+            const seen = new Set();
+            renderedData.forEach((row, i) => {
+                if (!DOM.tableBody.rows[i]) return;
+                const s = JSON.stringify(row);
+                if (seen.has(s)) DOM.tableBody.rows[i].classList.add('duplicate-row');
+                else seen.add(s);
+            });
+            if (currentData.length > 1) {
+                const headers = Object.keys(currentData[0]);
+                headers.forEach(h => {
+                    const vals = renderedData.map(r => parseFloat(r[h])).filter(v => !isNaN(v));
+                    if (vals.length > 0) {
+                        const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+                        const sd = Math.sqrt(vals.map(v=>Math.pow(v-mean,2)).reduce((a,b)=>a+b,0)/vals.length);
+                        const thr = 3*sd;
+                        renderedData.forEach((row, i) => {
+                            if (!DOM.tableBody.rows[i]) return;
+                            const v = parseFloat(row[h]);
+                            if (!isNaN(v) && (v > mean+thr || v < mean-thr)) {
+                                const input = DOM.tableBody.rows[i].querySelector(`td input[data-h="${h}"]`);
+                                if (input) input.parentNode.classList.add('outlier-cell');
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        function parseCSV(text) {
+            return new Promise((res, rej) => {
+                Papa.parse(text, { header: true, skipEmptyLines: true, complete: r => {
+                    const d = r.data.map(row => { const n = {}; for (const k in row) n[k] = row[k] === '' ? null : row[k]; return n; });
+                    res(d);
+                }, error: e => rej(e) });
+            });
+        }
+
+        function animateProgress(dur = 1500) {
+            DOM.progressContainer.style.display = 'block';
+            DOM.progressBar.style.width = '0%';
+            DOM.progressBar.textContent = '0%';
+            let start = null;
+            function step(t) {
+                if (!start) start = t;
+                const p = Math.min((t-start)/dur, 1);
+                const w = (p*100).toFixed(0);
+                DOM.progressBar.style.width = w+'%';
+                DOM.progressBar.textContent = w+'%';
+                if (p < 1) requestAnimationFrame(step);
+                else setTimeout(() => { DOM.progressContainer.style.display = 'none'; DOM.progressBar.style.width='0%'; DOM.progressBar.textContent='0%'; }, 400);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function clearViz() {
+            if (dataChart) { dataChart.destroy(); dataChart = null; }
+            DOM.previewBox.innerHTML = `<h3>${t('liveTest')}</h3><p style="font-size:13px;color:#718096;">${t('liveTestDefault')}</p>`;
+            DOM.insightBox.innerHTML = `<h3>${t('insight')}</h3><p style="font-size:13px;">${t('insightDefault')}</p>`;
+        }
+
+        function resetApp() {
+            currentData = []; originalData = []; cleanedData = []; modelResults = {};
+            DOM.fixMissing.checked = false; DOM.removeDup.checked = false;
+            DOM.cleanStatus.textContent = '';
+            DOM.methodRadios[0].checked = true;
+            DOM.advContent.classList.remove('show');
+            DOM.kvalRadios[0].checked = true;
+            DOM.csvFile.value = ''; DOM.csvText.value = '';
+            renderTable([]); clearViz();
+        }
+
+        // Cleaning
+        function fixMissing(data) {
+            if (!DOM.fixMissing.checked) return data;
+            let cnt = 0;
+            const nd = JSON.parse(JSON.stringify(data));
+            const headers = nd.length > 0 ? Object.keys(nd[0]) : [];
+            headers.forEach(h => {
+                const vals = nd.map(r => parseFloat(r[h])).filter(v => !isNaN(v));
+                if (vals.length > 0) {
+                    const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+                    nd.forEach(r => { if (r[h] === null || String(r[h]).trim() === '') { r[h] = mean.toFixed(2); cnt++; } });
+                }
+            });
+            DOM.cleanStatus.textContent = cnt + ' missing values fixed.';
+            return nd;
+        }
+
+        function removeDupOut(data) {
+            if (!DOM.removeDup.checked) return data;
+            let dd = 0, oo = 0;
+            let nd = [];
+            const seen = new Set();
+            data.forEach(r => { const s = JSON.stringify(r); if (!seen.has(s)) { nd.push(r); seen.add(s); } else dd++; });
+            if (nd.length > 1) {
+                const headers = Object.keys(nd[0]);
+                headers.forEach(h => {
+                    const vals = nd.map(r => parseFloat(r[h])).filter(v => !isNaN(v)).sort((a,b)=>a-b);
+                    if (vals.length > 0) {
+                        const q1 = vals[Math.floor((vals.length-1)/4)];
+                        const q3 = vals[Math.ceil((vals.length-1)*3/4)];
+                        const iqr = q3-q1;
+                        const lo = q1 - 1.5*iqr, hi = q3 + 1.5*iqr;
+                        nd = nd.map(r => {
+                            const v = parseFloat(r[h]);
+                            if (!isNaN(v)) { if (v < lo) { r[h] = lo.toFixed(2); oo++; } else if (v > hi) { r[h] = hi.toFixed(2); oo++; } }
+                            return r;
+                        });
+                    }
+                });
+            }
+            const parts = [];
+            if (dd > 0) parts.push(dd + ' duplicates removed.');
+            if (oo > 0) parts.push(oo + ' outliers capped.');
+            if (parts.length === 0) parts.push('No duplicates or outliers found.');
+            DOM.cleanStatus.textContent = parts.join(' ');
+            return nd;
+        }
+
+        // ML Algorithms
+        function groupAndSummarize(data) {
+            if (data.length === 0) return { chartType: 'bar', labels: [], datasets: [] };
+            const headers = Object.keys(data[0]);
+            const catH = headers.find(h => isNaN(parseFloat(data[0][h])));
+            const numH = headers.find(h => !isNaN(parseFloat(data[0][h])));
+            if (!catH || !numH) return { chartType: 'bar', labels: ['Error'], datasets: [{ label: 'Error', data: [1], backgroundColor: ['red'] }] };
+            const grouped = data.reduce((acc, row) => {
+                const cat = row[catH]; const v = parseFloat(row[numH]);
+                if (!isNaN(v)) { if (!acc[cat]) acc[cat] = { sum: 0, count: 0 }; acc[cat].sum += v; acc[cat].count++; }
+                return acc;
+            }, {});
+            const labels = Object.keys(grouped);
+            const sums = labels.map(l => grouped[l].sum);
+            const avgs = labels.map(l => grouped[l].sum / grouped[l].count);
+            const colors = ['#4299e1','#ed8936','#48bb78','#805ad5','#ecc94b','#d53f8c'];
+            return { chartType: 'bar', labels, datasets: [
+                { label: 'Sum of ' + numH, data: sums, backgroundColor: labels.map((_,i) => colors[i%colors.length]) },
+                { label: 'Avg of ' + numH, data: avgs, backgroundColor: labels.map((_,i) => colors[(i+2)%colors.length]) }
+            ], catH, numH };
+        }
+
+        function linearRegression(data) {
+            if (data.length === 0) return { chartType: 'scatter', dataPoints: [], regressionLine: { slope: 0, intercept: 0, r: 0 } };
+            const headers = Object.keys(data[0]);
+            const numH = headers.filter(h => !isNaN(parseFloat(data[0][h])));
+            if (numH.length < 2) return { chartType: 'scatter', dataPoints: [], regressionLine: { slope: 0, intercept: 0, r: 0 } };
+            const xH = numH[0], yH = numH[1];
+            const pts = data.map(r => ({ x: parseFloat(r[xH]), y: parseFloat(r[yH]) })).filter(p => !isNaN(p.x) && !isNaN(p.y));
+            if (pts.length < 2) return { chartType: 'scatter', dataPoints: [], regressionLine: { slope: 0, intercept: 0, r: 0 } };
+            let sx=0, sy=0, sxy=0, sxx=0, syy=0, n=pts.length;
+            for (const p of pts) { sx+=p.x; sy+=p.y; sxy+=p.x*p.y; sxx+=p.x*p.x; syy+=p.y*p.y; }
+            const den = n*sxx - sx*sx;
+            const slope = den === 0 ? 0 : (n*sxy - sx*sy)/den;
+            const intercept = (sy - slope*sx)/n;
+            const numR = n*sxy - sx*sy;
+            const denR = Math.sqrt((n*sxx-sx*sx)*(n*syy-sy*sy));
+            const r = denR === 0 ? 0 : numR/denR;
+            return { chartType: 'scatter', xLabel: xH, yLabel: yH, dataPoints: pts, regressionLine: { slope, intercept, r: r.toFixed(2) }, predictionFeature: xH, predictionOutput: yH };
+        }
+
+        function classificationKNN(data, k = 3) {
+            if (data.length === 0) return { chartType: 'scatter', dataPoints: [], categories: [], predictionFeatures: [], model: { predict: () => ({ class: 'N/A', confidence: {} }) } };
+            const f1H = 'Weight_g', f2H = 'Sweetness_1_10', lH = 'Fruit';
+            const td = data.map(r => ({ f1: parseFloat(r[f1H]), f2: parseFloat(r[f2H]), label: r[lH] })).filter(p => !isNaN(p.f1) && !isNaN(p.f2) && p.label);
+            if (td.length === 0) return { chartType: 'scatter', dataPoints: [], categories: [], predictionFeatures: [], model: { predict: () => ({ class: 'N/A', confidence: {} }) } };
+            const cats = [...new Set(td.map(p => p.label))];
+            const predict = (tf1, tf2) => {
+                const dists = td.map(p => ({ d: Math.sqrt(Math.pow(tf1-p.f1,2)+Math.pow(tf2-p.f2,2)), label: p.label }));
+                dists.sort((a,b) => a.d - b.d);
+                const nn = dists.slice(0, k);
+                const counts = {};
+                nn.forEach(n => { counts[n.label] = (counts[n.label]||0)+1; });
+                let pc = 'N/A', mc = 0;
+                for (const l in counts) if (counts[l] > mc) { mc = counts[l]; pc = l; }
+                const conf = {};
+                cats.forEach(c => { conf[c] = (counts[c]||0)/k; });
+                return { class: pc, confidence: conf };
+            };
+            return { chartType: 'scatter', xLabel: f1H, yLabel: f2H, dataPoints: td.map(p => ({ x: p.f1, y: p.f2, label: p.label })), categories: cats, predictionFeatures: [f1H, f2H], model: { predict }, kValue: k };
+        }
+
+        function clusteringKMeans(data, k = 3, maxIter = 10) {
+            if (data.length === 0) return { chartType: 'scatter', dataPoints: [], clusters: [], kValue: k, predictionFeatures: [] };
+            const f1H = 'Items_Bought', f2H = 'Total_Spend';
+            const pts = data.map(r => ({ x: parseFloat(r[f1H]), y: parseFloat(r[f2H]) })).filter(p => !isNaN(p.x) && !isNaN(p.y));
+            if (pts.length < k) return { chartType: 'scatter', dataPoints: [], clusters: [], kValue: k, predictionFeatures: [] };
+            let cents = [];
+            const minX = Math.min(...pts.map(p=>p.x)), maxX = Math.max(...pts.map(p=>p.x));
+            const minY = Math.min(...pts.map(p=>p.y)), maxY = Math.max(...pts.map(p=>p.y));
+            for (let i = 0; i < k; i++) cents.push({ x: minX + (maxX-minX)*Math.random(), y: minY + (maxY-minY)*Math.random() });
+            let iter = 0, oldCents;
+            do {
+                oldCents = JSON.parse(JSON.stringify(cents));
+                const clusters = Array.from({ length: k }, () => ({ points: [], centroid: null }));
+                pts.forEach(p => {
+                    let md = Infinity, mi = -1;
+                    cents.forEach((c, i) => { const d = Math.sqrt(Math.pow(p.x-c.x,2)+Math.pow(p.y-c.y,2)); if (d < md) { md = d; mi = i; } });
+                    clusters[mi].points.push(p);
+                });
+                cents = clusters.map((cl, i) => {
+                    if (cl.points.length === 0) return oldCents[i];
+                    return { x: cl.points.reduce((s,p)=>s+p.x,0)/cl.points.length, y: cl.points.reduce((s,p)=>s+p.y,0)/cl.points.length };
+                });
+                iter++;
+            } while (iter < maxIter && !cents.every((c,i) => Math.abs(c.x-oldCents[i].x) < 0.001 && Math.abs(c.y-oldCents[i].y) < 0.001));
+            const final = Array.from({ length: k }, () => ({ points: [], centroid: null }));
+            pts.forEach(p => {
+                let md = Infinity, mi = -1;
+                cents.forEach((c, i) => { const d = Math.sqrt(Math.pow(p.x-c.x,2)+Math.pow(p.y-c.y,2)); if (d < md) { md = d; mi = i; } });
+                final[mi].points.push(p);
+            });
+            final.forEach((cl, i) => { cl.centroid = cents[i]; });
+            return { chartType: 'scatter', xLabel: f1H, yLabel: f2H, dataPoints: pts, clusters: final, kValue: k, predictionFeatures: [f1H, f2H] };
+        }
+
+        // --- New ML/DS Algorithms ---
+
+        function associationRules(data) {
+            if (data.length === 0) return { chartType: 'text', rules: [], insight: 'No data.' };
+            // Parse transactions
+            const transactions = data.map(row => {
+                const items = (row.Items || '').split(',').map(s => s.trim()).filter(s => s);
+                return items;
+            }).filter(t => t.length > 0);
+
+            if (transactions.length === 0) return { chartType: 'text', rules: [], insight: 'No transactions found.' };
+
+            // Find frequent itemsets (min support 0.3)
+            const minSupport = 0.3;
+            const minConfidence = 0.5;
+
+            // Count individual items
+            const itemCounts = {};
+            transactions.forEach(t => t.forEach(item => { itemCounts[item] = (itemCounts[item] || 0) + 1; }));
+
+            // Generate rules: for each pair of items, if A->B
+            const rules = [];
+            const items = Object.keys(itemCounts);
+
+            for (let i = 0; i < items.length; i++) {
+                for (let j = 0; j < items.length; j++) {
+                    if (i === j) continue;
+                    const itemA = items[i], itemB = items[j];
+                    const countA = transactions.filter(t => t.includes(itemA)).length;
+                    const countAB = transactions.filter(t => t.includes(itemA) && t.includes(itemB)).length;
+                    const support = countAB / transactions.length;
+                    const confidence = countA > 0 ? countAB / countA : 0;
+                    if (support >= minSupport && confidence >= minConfidence) {
+                        rules.push({ antecedent: itemA, consequent: itemB, support: support.toFixed(2), confidence: (confidence * 100).toFixed(0) + '%' });
+                    }
+                }
+            }
+
+            // Deduplicate rules
+            const uniqueRules = [];
+            const seen = new Set();
+            rules.forEach(r => {
+                const key = r.antecedent + '->' + r.consequent;
+                if (!seen.has(key)) { seen.add(key); uniqueRules.push(r); }
+            });
+
+            return { chartType: 'text', rules: uniqueRules, transactionCount: transactions.length, insight: `Found ${uniqueRules.length} association rules from ${transactions.length} transactions.` };
+        }
+
+        function decisionTree(data) {
+            if (data.length === 0) return { chartType: 'text', tree: 'No data.', insight: 'No data.' };
+            // Simple decision tree using ID3-like approach on first categorical attribute
+            const headers = Object.keys(data[0]);
+            const targetCol = headers[headers.length - 1]; // Last column is target
+            const featureCols = headers.slice(0, -1).filter(h => h !== headers[0] || typeof data[0][h] === 'string');
+
+            // Build a simple tree: split by first feature
+            const features = featureCols.filter(h => typeof data[0][h] === 'string');
+            if (features.length === 0) return { chartType: 'text', tree: 'No categorical features found.', insight: 'Need categorical features.' };
+
+            const splitFeature = features[0];
+            const groups = {};
+            data.forEach(row => {
+                const val = row[splitFeature];
+                if (!groups[val]) groups[val] = [];
+                groups[val].push(row);
+            });
+
+            let treeText = `Decision Tree (split by ${splitFeature}):\n\n`;
+            for (const val in groups) {
+                const group = groups[val];
+                const labelCounts = {};
+                group.forEach(row => { labelCounts[row[targetCol]] = (labelCounts[row[targetCol]] || 0) + 1; });
+                const majority = Object.entries(labelCounts).sort((a, b) => b[1] - a[1])[0];
+                treeText += `If ${splitFeature} = "${val}" (${group.length} samples):\n`;
+                for (const [label, count] of Object.entries(labelCounts)) {
+                    treeText += `    ${label}: ${count}\n`;
+                }
+                treeText += `    -> Predict: ${majority[0]}\n\n`;
+            }
+
+            return { chartType: 'text', tree: treeText, targetCol, splitFeature, insight: `Decision tree splits data by "${splitFeature}" to predict "${targetCol}".` };
+        }
+
+        function naiveBayes(data) {
+            if (data.length === 0) return { chartType: 'text', classes: [], model: { predict: () => ({ class: 'N/A', confidence: {} }) }, insight: 'No data.' };
+            const headers = Object.keys(data[0]);
+            const labelCol = headers[headers.length - 1];
+            const featureCols = headers.slice(1, -1).filter(h => h !== 'Email');
+
+            const classes = [...new Set(data.map(r => r[labelCol]))];
+            const classCounts = {};
+            classes.forEach(c => { classCounts[c] = data.filter(r => r[labelCol] === c).length; });
+            const total = data.length;
+
+            // Compute conditional probabilities (simple: count-based)
+            const predict = (features) => {
+                const probs = {};
+                classes.forEach(c => {
+                    let p = classCounts[c] / total;
+                    featureCols.forEach((fc, i) => {
+                        const val = features[i];
+                        const count = data.filter(r => r[labelCol] === c && r[fc] === val).length;
+                        const classTotal = classCounts[c];
+                        p *= (count + 1) / (classTotal + 2); // Laplace smoothing
+                    });
+                    probs[c] = p;
+                });
+                const totalProb = Object.values(probs).reduce((a, b) => a + b, 0);
+                const normalized = {};
+                let bestClass = classes[0], bestProb = 0;
+                classes.forEach(c => {
+                    normalized[c] = totalProb > 0 ? probs[c] / totalProb : 0;
+                    if (normalized[c] > bestProb) { bestProb = normalized[c]; bestClass = c; }
+                });
+                return { class: bestClass, confidence: normalized };
+            };
+
+            return { chartType: 'text', classes, featureCols, labelCol, model: { predict }, insight: `Naive Bayes classifier trained on ${data.length} samples with ${classes.length} classes.` };
+        }
+
+        function missingValueImputation(data) {
+            if (data.length === 0) return { chartType: 'bar', labels: [], datasets: [], insight: 'No data.' };
+            const headers = Object.keys(data[0]);
+            const numHeaders = headers.filter(h => !isNaN(parseFloat(data[0][h])));
+
+            // Count missing values per column
+            const missingCounts = {};
+            numHeaders.forEach(h => {
+                missingCounts[h] = data.filter(r => r[h] === null || String(r[h]).trim() === '').length;
+            });
+
+            // Compute mean and median for each column
+            const stats = {};
+            numHeaders.forEach(h => {
+                const vals = data.map(r => parseFloat(r[h])).filter(v => !isNaN(v));
+                const mean = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+                const sorted = vals.sort((a, b) => a - b);
+                const median = sorted.length > 0 ? (sorted.length % 2 === 0 ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2 : sorted[Math.floor(sorted.length / 2)]) : 0;
+                stats[h] = { mean: mean.toFixed(2), median: median.toFixed(2), missing: missingCounts[h] };
+            });
+
+            const labels = numHeaders;
+            const meanData = labels.map(h => parseFloat(stats[h].mean));
+            const medianData = labels.map(h => parseFloat(stats[h].median));
+            const missingData = labels.map(h => missingCounts[h]);
+
+            return {
+                chartType: 'bar',
+                labels,
+                datasets: [
+                    { label: 'Mean', data: meanData, backgroundColor: '#4299e1' },
+                    { label: 'Median', data: medianData, backgroundColor: '#ed8936' },
+                    { label: 'Missing Count', data: missingData, backgroundColor: '#e53e3e' },
+                ],
+                stats,
+                insight: `Missing value analysis: ${Object.values(missingCounts).reduce((a, b) => a + b, 0)} total missing values across ${numHeaders.length} numerical columns. Mean and median shown for imputation comparison.`
+            };
+        }
+
+        function normalizationDemo(data) {
+            if (data.length === 0) return { chartType: 'scatter', dataPoints: [], normalized: [], insight: 'No data.' };
+            const headers = Object.keys(data[0]);
+            const numHeaders = headers.filter(h => !isNaN(parseFloat(data[0][h])) && h !== 'Student');
+            if (numHeaders.length < 2) return { chartType: 'scatter', dataPoints: [], normalized: [], insight: 'Need at least 2 numerical columns.' };
+
+            const f1 = numHeaders[0], f2 = numHeaders[1];
+            const pts = data.map(r => ({ x: parseFloat(r[f1]), y: parseFloat(r[f2]), label: r.Student || r.Customer || '' })).filter(p => !isNaN(p.x) && !isNaN(p.y));
+
+            // Min-Max normalization
+            const minX = Math.min(...pts.map(p => p.x)), maxX = Math.max(...pts.map(p => p.x));
+            const minY = Math.min(...pts.map(p => p.y)), maxY = Math.max(...pts.map(p => p.y));
+            const normalized = pts.map(p => ({
+                x: maxX !== minX ? (p.x - minX) / (maxX - minX) : 0,
+                y: maxY !== minY ? (p.y - minY) / (maxY - minY) : 0,
+                label: p.label
+            }));
+
+            // Z-score normalization
+            const meanX = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+            const meanY = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+            const stdX = Math.sqrt(pts.reduce((s, p) => s + Math.pow(p.x - meanX, 2), 0) / pts.length);
+            const stdY = Math.sqrt(pts.reduce((s, p) => s + Math.pow(p.y - meanY, 2), 0) / pts.length);
+            const zscore = pts.map(p => ({
+                x: stdX !== 0 ? (p.x - meanX) / stdX : 0,
+                y: stdY !== 0 ? (p.y - meanY) / stdY : 0,
+                label: p.label
+            }));
+
+            return {
+                chartType: 'scatter',
+                xLabel: f1, yLabel: f2,
+                dataPoints: pts,
+                normalized,
+                zscore,
+                minMax: { minX, maxX, minY, maxY },
+                insight: `Normalization demo: Min-Max scales data to [0,1]. Z-score centers data at 0 with std dev 1. Original ${f1} range: [${minX}, ${maxX}], ${f2} range: [${minY}, ${maxY}].`
+            };
+        }
+
+        function outlierMeanMedianDemo(data) {
+            if (data.length === 0) return { chartType: 'scatter', points: [], mean: 0, median: 0, insight: 'No data.' };
+            // Use first numerical column
+            const headers = Object.keys(data[0]);
+            const numH = headers.find(h => !isNaN(parseFloat(data[0][h])));
+            if (!numH) return { chartType: 'scatter', points: [], mean: 0, median: 0, insight: 'No numerical column.' };
+
+            const pts = data.map((r, i) => ({ x: i + 1, y: parseFloat(r[numH]), label: r.Student || r.Customer || `P${i + 1}` })).filter(p => !isNaN(p.y));
+
+            const mean = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+            const sorted = pts.map(p => p.y).sort((a, b) => a - b);
+            const median = sorted.length % 2 === 0 ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2 : sorted[Math.floor(sorted.length / 2)];
+
+            return {
+                chartType: 'scatter',
+                xLabel: 'Index', yLabel: numH,
+                points: pts,
+                mean: mean.toFixed(2),
+                median: median.toFixed(2),
+                numH,
+                insight: `Mean = ${mean.toFixed(2)}, Median = ${median.toFixed(2)}. The mean is sensitive to outliers (extreme values), while the median is robust. Drag a point up to see the mean change dramatically while the median stays stable.`
+            };
+        }
+
+        // Chart
+        function updateChart(method, results) {
+            if (dataChart) { dataChart.destroy(); }
+            const ctx = DOM.chartCanvas.getContext('2d');
+            let cfg = {};
+            if (method === 'group') {
+                cfg = { type: 'bar', data: { labels: results.labels, datasets: results.datasets }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Group & Summarize' } } } };
+            } else if (method === 'trend') {
+                const sp = results.dataPoints.map(p => ({ x: p.x, y: p.y }));
+                const rp = [{ x: Math.min(...sp.map(p=>p.x)), y: Math.min(...sp.map(p=>p.x))*results.regressionLine.slope + results.regressionLine.intercept }, { x: Math.max(...sp.map(p=>p.x)), y: Math.max(...sp.map(p=>p.x))*results.regressionLine.slope + results.regressionLine.intercept }];
+                cfg = { type: 'scatter', data: { datasets: [{ label: 'Data', data: sp, backgroundColor: 'rgba(75,192,192,0.6)', pointRadius: 6, type: 'scatter' }, { label: 'Regression Line', data: rp, borderColor: '#ff6384', type: 'line', fill: false, pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Trend & Prediction (r=' + results.regressionLine.r + ')' } }, scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: results.xLabel } }, y: { title: { display: true, text: results.yLabel } } } } };
+            } else if (method === 'classify') {
+                const colors = ['#4299e1','#ed8936','#48bb78','#805ad5'];
+                const bg = {}; results.categories.forEach((c,i) => { bg[c] = colors[i%colors.length]; });
+                const ds = results.categories.map(c => ({ label: c, data: results.dataPoints.filter(p => p.label === c), backgroundColor: bg[c], pointRadius: 6, type: 'scatter' }));
+                cfg = { type: 'scatter', data: { datasets: ds }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Classification (KNN)' } }, scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: results.xLabel } }, y: { title: { display: true, text: results.yLabel } } } } };
+            } else if (method === 'cluster') {
+                const colors = ['#4299e1','#ed8936','#48bb78','#805ad5'];
+                const cds = results.clusters.map((cl, i) => ({ label: 'Cluster '+(i+1), data: cl.points, backgroundColor: colors[i%colors.length], pointRadius: 6, type: 'scatter' }));
+                const centDs = { label: 'Centroids', data: results.clusters.map(c => c.centroid), backgroundColor: '#000', borderColor: '#fff', pointRadius: 10, pointStyle: 'crossRot', rotation: 45, borderWidth: 2, type: 'scatter' };
+                cfg = { type: 'scatter', data: { datasets: [...cds, centDs] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Clustering (K-Means, K=' + results.kValue + ')' } }, scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: results.xLabel } }, y: { title: { display: true, text: results.yLabel } } } } };
+            }
+            if (method === 'association') {
+                // Render as text/table in chart area (use canvas for text)
+                cfg = { type: 'bar', data: { labels: results.rules.map((r, i) => `Rule ${i + 1}`), datasets: [{ label: 'Confidence %', data: results.rules.map(r => parseFloat(r.confidence)), backgroundColor: '#4299e1' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: `Association Rules (${results.rules.length} rules)` } }, scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Confidence %' } } } } };
+            } else if (method === 'decisiontree') {
+                // Render as text
+                cfg = { type: 'bar', data: { labels: ['Decision Tree'], datasets: [{ label: 'Nodes', data: [1], backgroundColor: '#48bb78' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Decision Tree (see insight below)' } } } };
+            } else if (method === 'naivebayes') {
+                // Render similar to classification
+                cfg = { type: 'bar', data: { labels: results.classes, datasets: [{ label: 'Class Distribution', data: results.classes.map(c => 1), backgroundColor: ['#4299e1', '#ed8936'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Naive Bayes Classes' } } } };
+            } else if (method === 'imputation') {
+                cfg = { type: 'bar', data: { labels: results.labels, datasets: results.datasets }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Missing Value Imputation (Mean vs Median)' } } } };
+            } else if (method === 'normalization') {
+                const sp = results.dataPoints.map(p => ({ x: p.x, y: p.y }));
+                const np = results.normalized.map(p => ({ x: p.x, y: p.y }));
+                cfg = { type: 'scatter', data: { datasets: [{ label: 'Original', data: sp, backgroundColor: 'rgba(75,192,192,0.6)', pointRadius: 6, type: 'scatter' }, { label: 'Normalized (Min-Max)', data: np, backgroundColor: 'rgba(255,99,132,0.6)', pointRadius: 6, type: 'scatter' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Normalization (Original vs Min-Max)' } }, scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: results.xLabel } }, y: { title: { display: true, text: results.yLabel } } } } };
+            } else if (method === 'outlierdemo') {
+                const meanLine = results.points.map(p => ({ x: p.x, y: parseFloat(results.mean) }));
+                const medianLine = results.points.map(p => ({ x: p.x, y: parseFloat(results.median) }));
+                cfg = { type: 'scatter', data: { datasets: [{ label: 'Data Points', data: results.points, backgroundColor: 'rgba(75,192,192,0.6)', pointRadius: 8, type: 'scatter' }, { label: 'Mean', data: meanLine, borderColor: '#e53e3e', type: 'line', fill: false, pointRadius: 0, borderDash: [5, 5] }, { label: 'Median', data: medianLine, borderColor: '#48bb78', type: 'line', fill: false, pointRadius: 0, borderDash: [2, 2] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, title: { display: true, text: `Mean vs Median (${results.numH})` } }, scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: 'Index' } }, y: { title: { display: true, text: results.yLabel } } } } };
+            }
+
+            if (Object.keys(cfg).length > 0) dataChart = new Chart(ctx, cfg);
+        }
+
+        // Live Preview
+        function setupPreview(method, results) {
+            DOM.previewBox.innerHTML = '';
+            const h3 = document.createElement('h3'); h3.textContent = t('liveTest'); DOM.previewBox.appendChild(h3);
+            if (method === 'trend') {
+                const f = results.predictionFeature;
+                if (!f) {
+                    const msg = document.createElement('p'); msg.style.fontSize = '12px'; msg.style.color = '#718096'; msg.textContent = 'Need at least two numerical columns for prediction.'; DOM.previewBox.appendChild(msg);
+                    return;
+                }
+                const minV = Math.min(...currentData.map(r => parseFloat(r[f])).filter(v => !isNaN(v)));
+                const maxV = Math.max(...currentData.map(r => parseFloat(r[f])).filter(v => !isNaN(v)));
+                const grp = document.createElement('div'); grp.className = 'slider-group';
+                grp.innerHTML = `<label>${f}: <span id="sv-${f}">${minV}</span></label><input type="range" id="sl-${f}" min="${minV}" max="${maxV}" value="${minV}" step="0.1"><p style="font-size:13px;margin-top:6px;">Predicted ${results.predictionOutput}: <strong id="pred-out"></strong></p>`;
+                DOM.previewBox.appendChild(grp);
+                const sl = document.getElementById('sl-'+f), sv = document.getElementById('sv-'+f), po = document.getElementById('pred-out');
+                const upd = () => { const v = parseFloat(sl.value); sv.textContent = v.toFixed(1); const pv = v*results.regressionLine.slope + results.regressionLine.intercept; po.textContent = pv.toFixed(2); if (dataChart) { let pd = dataChart.data.datasets.find(d => d.label === 'Live'); if (!pd) { pd = { label: 'Live', data: [], backgroundColor: 'black', borderColor: 'white', pointRadius: 10, pointStyle: 'star', borderWidth: 2, type: 'scatter' }; dataChart.data.datasets.push(pd); } pd.data = [{ x: v, y: pv }]; dataChart.update(); } };
+                sl.addEventListener('input', upd); upd();
+            } else if (method === 'classify') {
+                const feats = results.predictionFeatures;
+                feats.forEach(f => {
+                    const minV = Math.min(...currentData.map(r => parseFloat(r[f])).filter(v => !isNaN(v)));
+                    const maxV = Math.max(...currentData.map(r => parseFloat(r[f])).filter(v => !isNaN(v)));
+                    const grp = document.createElement('div'); grp.className = 'slider-group';
+                    grp.innerHTML = `<label>${f}: <span id="sv-${f}">${minV}</span></label><input type="range" id="sl-${f}" min="${minV}" max="${maxV}" value="${minV}" step="0.1">`;
+                    DOM.previewBox.appendChild(grp);
+                });
+                if (feats.length === 0) {
+                    const msg = document.createElement('p'); msg.style.fontSize = '12px'; msg.style.color = '#718096'; msg.textContent = 'Load "Fruit Classifier" dataset for classification.'; DOM.previewBox.appendChild(msg);
+                    return;
+                }
+                const cb = document.createElement('div'); cb.className = 'confidence-bar-container';
+                cb.innerHTML = results.categories.map(c => `<div class="confidence-item"><span class="confidence-label">${c}:</span><div class="confidence-bar"><div class="confidence-fill" id="cf-${c}">0%</div></div></div>`).join('');
+                DOM.previewBox.appendChild(cb);
+                const upd = () => {
+                    const iv = {}; feats.forEach(f => { const sl = document.getElementById('sl-'+f); const sv = document.getElementById('sv-'+f); iv[f] = parseFloat(sl.value); sv.textContent = iv[f].toFixed(1); });
+                    const pred = results.model.predict(iv[feats[0]], iv[feats[1]]);
+                    results.categories.forEach(c => { const cf = document.getElementById('cf-'+c); const pct = (pred.confidence[c]*100).toFixed(0); cf.style.width = pct+'%'; cf.textContent = pct+'%'; cf.style.backgroundColor = c === pred.class ? '#4CAF50' : '#4299e1'; });
+                    if (dataChart) { let pd = dataChart.data.datasets.find(d => d.label === 'Live'); if (!pd) { pd = { label: 'Live', data: [], backgroundColor: 'black', borderColor: 'white', pointRadius: 10, pointStyle: 'star', borderWidth: 2, type: 'scatter' }; dataChart.data.datasets.push(pd); } pd.data = [{ x: iv[feats[0]], y: iv[feats[1]] }]; dataChart.update(); }
+                };
+                feats.forEach(f => document.getElementById('sl-'+f).addEventListener('input', upd));
+                upd();
+            } else if (method === 'cluster') {
+                const feats = results.predictionFeatures;
+                feats.forEach(f => {
+                    const minV = Math.min(...currentData.map(r => parseFloat(r[f])).filter(v => !isNaN(v)));
+                    const maxV = Math.max(...currentData.map(r => parseFloat(r[f])).filter(v => !isNaN(v)));
+                    const grp = document.createElement('div'); grp.className = 'slider-group';
+                    grp.innerHTML = `<label>${f}: <span id="sv-${f}">${minV}</span></label><input type="range" id="sl-${f}" min="${minV}" max="${maxV}" value="${minV}" step="0.1">`;
+                    DOM.previewBox.appendChild(grp);
+                });
+                const pc = document.createElement('p'); pc.style.fontSize = '13px'; pc.style.marginTop = '6px'; pc.innerHTML = 'Predicted Cluster: <strong id="pred-cluster">N/A</strong>'; DOM.previewBox.appendChild(pc);
+                if (feats.length === 0) {
+                    const msg = document.createElement('p'); msg.style.fontSize = '12px'; msg.style.color = '#718096'; msg.textContent = 'Load "Shop Customers" dataset for clustering.'; DOM.previewBox.appendChild(msg);
+                    return;
+                }
+                const upd = () => {
+                    const iv = {}; feats.forEach(f => { const sl = document.getElementById('sl-'+f); const sv = document.getElementById('sv-'+f); iv[f] = parseFloat(sl.value); sv.textContent = iv[f].toFixed(1); });
+                    let nc = 'N/A', md = Infinity;
+                    results.clusters.forEach((cl, i) => { const d = Math.sqrt(Math.pow(iv[feats[0]]-cl.centroid.x,2)+Math.pow(iv[feats[1]]-cl.centroid.y,2)); if (d < md) { md = d; nc = 'Cluster '+(i+1); } });
+                    document.getElementById('pred-cluster').textContent = nc;
+                    if (dataChart) { let pd = dataChart.data.datasets.find(d => d.label === 'Live'); if (!pd) { pd = { label: 'Live', data: [], backgroundColor: 'black', borderColor: 'white', pointRadius: 10, pointStyle: 'triangle', rotation: 180, borderWidth: 2, type: 'scatter' }; dataChart.data.datasets.push(pd); } pd.data = [{ x: iv[feats[0]], y: iv[feats[1]] }]; dataChart.update(); }
+                };
+                feats.forEach(f => document.getElementById('sl-'+f).addEventListener('input', upd));
+                upd();
+            } else if (method === 'naivebayes') {
+                if (results.featureCols && results.featureCols.length > 0) {
+                    const feats = results.featureCols;
+                    feats.forEach(f => {
+                        const grp = document.createElement('div'); grp.className = 'slider-group';
+                        grp.innerHTML = `<label>${f}: <input type="number" id="nb-${f}" value="1" min="0" max="1" style="width:60px;margin-left:8px;"> (0 or 1)</label>`;
+                        DOM.previewBox.appendChild(grp);
+                    });
+                    const btn = document.createElement('button'); btn.textContent = 'Classify'; btn.className = 'btn-sm btn-blue'; btn.style.marginTop = '8px';
+                    DOM.previewBox.appendChild(btn);
+                    const resDiv = document.createElement('div'); resDiv.style.marginTop = '8px'; resDiv.style.fontSize = '13px';
+                    DOM.previewBox.appendChild(resDiv);
+                    btn.addEventListener('click', () => {
+                        const features = feats.map(f => parseInt(document.getElementById('nb-' + f).value) || 0);
+                        const pred = results.model.predict(features);
+                        resDiv.innerHTML = 'Predicted: <strong>' + pred.class + '</strong><br>' + results.classes.map(c => c + ': ' + (pred.confidence[c] * 100).toFixed(1) + '%').join('<br>');
+                    });
+                } else {
+                    const msg = document.createElement('p'); msg.style.fontSize = '12px'; msg.style.color = '#718096'; msg.textContent = 'Load "Email Spam" dataset for Naive Bayes.'; DOM.previewBox.appendChild(msg);
+                }
+            } else if (method === 'association') {
+                const msg = document.createElement('p'); msg.style.fontSize = '12px'; msg.style.color = '#718096';
+                msg.innerHTML = results.rules.length > 0 ? results.rules.map(r => r.antecedent + ' → ' + r.consequent + ' (conf: ' + r.confidence + ')').join('<br>') : 'No association rules found.';
+                DOM.previewBox.appendChild(msg);
+            } else if (method === 'decisiontree') {
+                const pre = document.createElement('pre'); pre.style.fontSize = '11px'; pre.style.whiteSpace = 'pre-wrap'; pre.textContent = results.tree || 'No tree.';
+                DOM.previewBox.appendChild(pre);
+            } else if (method === 'imputation' || method === 'normalization' || method === 'outlierdemo') {
+                const msg = document.createElement('p'); msg.style.fontSize = '12px'; msg.style.color = '#718096';
+                msg.textContent = 'See chart and insight above for details.';
+                DOM.previewBox.appendChild(msg);
+            }
+        }
+
+        // Insight
+        function generateInsight(method, results) {
+            let ins = '';
+            if (method === 'group') ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">Grouping reveals key aggregates. See sum and average for each category.</p>';
+            else if (method === 'trend') {
+                const r = parseFloat(results.regressionLine.r);
+                let ct = r > 0.7 ? 'strong positive' : r > 0.3 ? 'moderate positive' : r < -0.7 ? 'strong negative' : r < -0.3 ? 'moderate negative' : 'weak or no';
+                ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">' + ct.charAt(0).toUpperCase()+ct.slice(1) + ' correlation between ' + results.xLabel + ' and ' + results.yLabel + '. As ' + results.xLabel + ' ' + (r>=0?'increases':'decreases') + ', ' + results.yLabel + ' tends to ' + (r>=0?'increase':'decrease') + '.</p>';
+            } else if (method === 'classify') ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">Model classifies new inputs based on learned patterns. Adjust sliders to see confidence levels.</p>';
+            else if (method === 'cluster') ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">Data grouped into ' + results.kValue + ' clusters. Black cross marks show cluster centers (centroids).</p>';
+            else if (method === 'association') {
+                let rulesHtml = results.rules.length > 0 ? results.rules.map(r => r.antecedent + ' → ' + r.consequent + ' (support: ' + r.support + ', confidence: ' + r.confidence + ')').join('<br>') : 'No rules found.';
+                ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">' + results.insight + '</p><div style="font-size:12px;margin-top:8px;">' + rulesHtml + '</div>';
+            } else if (method === 'decisiontree') {
+                ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">' + results.insight + '</p><pre style="font-size:11px;margin-top:8px;white-space:pre-wrap;">' + results.tree + '</pre>';
+            } else if (method === 'naivebayes') {
+                ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">' + results.insight + '</p><p style="font-size:12px;margin-top:8px;">Classes: ' + results.classes.join(', ') + '. Uses probability to classify new inputs.</p>';
+            } else if (method === 'imputation') {
+                let statsHtml = Object.entries(results.stats).map(([col, s]) => col + ': mean=' + s.mean + ', median=' + s.median + ', missing=' + s.missing).join('<br>');
+                ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">' + results.insight + '</p><div style="font-size:12px;margin-top:8px;">' + statsHtml + '</div>';
+            } else if (method === 'normalization') {
+                ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">' + results.insight + '</p>';
+            } else if (method === 'outlierdemo') {
+                ins = '<h3>' + t('insight') + '</h3><p style="font-size:13px;">' + results.insight + '</p>';
+            }
+            const cs = DOM.cleanStatus.textContent;
+            if (cs && cs !== 'No duplicates or outliers found.') ins += '<p style="font-size:12px;margin-top:6px;"><strong>Cleaning impact:</strong> ' + cs + '</p>';
+            DOM.insightBox.innerHTML = ins;
+        }
+
+        // Event listeners
+        DOM.langToggle.addEventListener('click', () => { currentLang = currentLang === 'en' ? 'ta' : 'en'; applyLanguage(); });
+        DOM.guideBtn.addEventListener('click', () => DOM.guideModal.classList.add('show'));
+        DOM.modalClose.addEventListener('click', () => DOM.guideModal.classList.remove('show'));
+        DOM.guideModal.addEventListener('click', e => { if (e.target === DOM.guideModal) DOM.guideModal.classList.remove('show'); });
+        DOM.resetBtn.addEventListener('click', resetApp);
+
+        DOM.datasetBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const ds = datasets[btn.dataset.dataset];
+                currentData = JSON.parse(JSON.stringify(ds.data));
+                originalData = JSON.parse(JSON.stringify(ds.data));
+                renderTable(currentData);
+                DOM.fixMissing.checked = false; DOM.removeDup.checked = false;
+                DOM.cleanStatus.textContent = '';
+            });
+        });
+
+        DOM.csvFile.addEventListener('change', async e => {
+            const f = e.target.files[0];
+            if (f) {
+                const r = new FileReader();
+                r.onload = async ev => {
+                    try {
+                        const d = await parseCSV(ev.target.result);
+                        if (d.length > 0) { currentData = d; originalData = JSON.parse(JSON.stringify(d)); renderTable(currentData); }
+                        else alert('No data found.');
+                    } catch (err) { alert('CSV parse error.'); }
+                };
+                r.readAsText(f);
+            }
+        });
+
+        DOM.loadCsvBtn.addEventListener('click', async () => {
+            const txt = DOM.csvText.value;
+            if (txt) {
+                try {
+                    const d = await parseCSV(txt);
+                    if (d.length > 0) { currentData = d; originalData = JSON.parse(JSON.stringify(d)); renderTable(currentData); }
+                    else alert('No data found.');
+                } catch (err) { alert('CSV parse error.'); }
+            } else alert('Please paste CSV data.');
+        });
+
+        DOM.tableBody.addEventListener('input', e => {
+            const t = e.target;
+            if (t.tagName === 'INPUT' && t.dataset.h) {
+                const i = parseInt(t.closest('tr').dataset.row);
+                const h = t.dataset.h;
+                currentData[i][h] = t.value === '' ? null : t.value;
+                highlightDirty();
+            }
+        });
+
+        DOM.addRowBtn.addEventListener('click', () => {
+            if (currentData.length > 0) {
+                const nr = {}; Object.keys(currentData[0]).forEach(h => { nr[h] = null; });
+                currentData.push(nr); renderTable(currentData);
+            } else alert('Load data first.');
+        });
+
+        DOM.tableBody.addEventListener('click', e => {
+            if (e.target.classList.contains('delete-row')) {
+                const i = parseInt(e.target.closest('tr').dataset.row);
+                currentData.splice(i, 1); renderTable(currentData);
+            }
+        });
+
+        DOM.fixMissing.addEventListener('change', () => {
+            cleanedData = fixMissing(JSON.parse(JSON.stringify(originalData)));
+            cleanedData = removeDupOut(cleanedData);
+            renderTable(cleanedData);
+        });
+
+        DOM.removeDup.addEventListener('change', () => {
+            cleanedData = fixMissing(JSON.parse(JSON.stringify(originalData)));
+            cleanedData = removeDupOut(cleanedData);
+            renderTable(cleanedData);
+        });
+
+        DOM.advToggle.addEventListener('click', () => DOM.advContent.classList.toggle('show'));
+
+        // Process card collapse toggle
+        const processToggle = document.getElementById('process-collapse-toggle');
+        const processContent = document.getElementById('process-content');
+        if (processToggle && processContent) {
+            processToggle.addEventListener('click', () => {
+                const isHidden = processContent.style.display === 'none';
+                processContent.style.display = isHidden ? 'block' : 'none';
+                processToggle.textContent = isHidden ? 'Hide Settings ▲' : 'Show Settings ▼';
+            });
+        }
+
+        DOM.trainBtn.addEventListener('click', () => {
+            if (currentData.length === 0) { alert('Load data first.'); return; }
+            animateProgress();
+            clearViz();
+            const method = Array.from(DOM.methodRadios).find(r => r.checked).value;
+            let pd = JSON.parse(JSON.stringify(currentData));
+            if (DOM.fixMissing.checked) pd = fixMissing(pd);
+            if (DOM.removeDup.checked) pd = removeDupOut(pd);
+            cleanedData = pd;
+            let res;
+            if (method === 'group') res = groupAndSummarize(cleanedData);
+            else if (method === 'trend') res = linearRegression(cleanedData);
+            else if (method === 'classify') { const k = parseInt(Array.from(DOM.kvalRadios).find(r => r.checked).value); res = classificationKNN(cleanedData, k); }
+            else if (method === 'cluster') { const k = parseInt(Array.from(DOM.kvalRadios).find(r => r.checked).value); res = clusteringKMeans(cleanedData, k); }
+            else if (method === 'association') res = associationRules(cleanedData);
+            else if (method === 'decisiontree') res = decisionTree(cleanedData);
+            else if (method === 'naivebayes') res = naiveBayes(cleanedData);
+            else if (method === 'imputation') res = missingValueImputation(cleanedData);
+            else if (method === 'normalization') res = normalizationDemo(cleanedData);
+            else if (method === 'outlierdemo') res = outlierMeanMedianDemo(cleanedData);
+            modelResults = res;
+            setTimeout(() => { updateChart(method, modelResults); setupPreview(method, modelResults); generateInsight(method, modelResults); }, 1500);
+        });
+
+        // Init
+        renderTable(currentData);
+        clearViz();
+        applyLanguage();
+    </script>
+</body>
+</html>
