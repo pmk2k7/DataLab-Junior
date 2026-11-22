@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataLab Junior — Video Tutorial (பயிற்சி வீடியோ)</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, #5a67d8, #805ad5);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { font-size: 16px; opacity: 0.9; }
+        .toc {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .toc h2 { font-size: 20px; margin-bottom: 12px; color: #2d3748; }
+        .toc ul { list-style: none; padding: 0; }
+        .toc li { padding: 6px 0; border-bottom: 1px solid #e2e8f0; }
+        .toc li:last-child { border-bottom: none; }
+        .toc a { color: #5a67d8; text-decoration: none; font-weight: 500; }
+        .toc a:hover { text-decoration: underline; }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .section h2 { font-size: 22px; color: #2d3748; margin-bottom: 12px; border-bottom: 2px solid #5a67d8; padding-bottom: 8px; }
+        .section h3 { font-size: 16px; color: #4a5568; margin: 16px 0 8px; }
+        .step {
+            display: flex;
+            gap: 16px;
+            margin: 16px 0;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #5a67d8;
+        }
+        .step-number {
+            background: #5a67d8;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step-content { flex: 1; }
+        .step-content strong { color: #2d3748; }
+        .screenshot {
+            margin: 16px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .screenshot img { width: 100%; display: block; }
+        .screenshot-caption {
+            background: #2d3748;
+            color: white;
+            padding: 8px 12px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .tip {
+            background: #e6fffa;
+            border: 1px solid #38b2ac;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+        .tip strong { color: #2d7772; }
+        .warning {
+            background: #fff5f5;
+            border: 1px solid #fc8181;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+        .warning strong { color: #c53030; }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .nav-buttons button {
+            background: #5a67d8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .nav-buttons button:hover { background: #4c56ad; }
+        .nav-buttons button:disabled { background: #a0aec0; cursor: not-allowed; }
+        .progress-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #5a67d8;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        @media (max-width: 768px) {
+            .step { flex-direction: column; }
+            .nav-buttons { flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎥 DataLab Junior — Video Tutorial</h1>
+            <p>பயிற்சி வீடியோ வழிகாட்டி (Step-by-Step Video Guide)</p>
+            <p style="font-size: 14px; margin-top: 8px;">Screen Recording போல படிப்படியான வழிமுறைகள்</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+
+        <div class="toc">
+            <h2>📋 பொருளடக்கம் (Table of Contents)</h2>
+            <ul>
+                <li><a href="#section1">1. தொடக்கம் (Getting Started)</a></li>
+                <li><a href="#section2">2. டேட்டா ஏற்றுதல் (Loading Data)</a></li>
+                <li><a href="#section3">3. டேட்டா சுத்திகரிப்பு (Data Cleaning)</a></li>
+                <li><a href="#section4">4. மாதிரி உருவாக்கம் (Model Training)</a></li>
+                <li><a href="#section5">5. காட்சிப்படுத்தல் (Visualization)</a></li>
+                <li><a href="#section6">6. நேரடி பரிசோதனை (Live Testing)</a></li>
+                <li><a href="#section7">7. மேம்பட்ட அம்சங்கள் (Advanced Features)</a></li>
+                <li><a href="#section8">8. பயிற்சி தட்டங்கள் (Lab Exercises)</a></li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Getting Started -->
+        <div class="section" id="section1">
+            <h2>1. தொடக்கம் (Getting Started)</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>கோப்பை திறக்கவும்:</strong> `index.html` கோப்பை எந்த பிரவுசரிலும் (Chrome, Edge, Firefox) திறக்கவும். எந்த நிறுவலும் தேவையில்லை.
+                </div>
+            </div>
+
+            <div class="screenshot">
+                <img src="screenshots/01-main-interface.png" alt="Main Interface">
+                <div class="screenshot-caption">📸 முக்கிய திரை — 3-கார்டு பைப்லைன் லேஅவுட்</div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>இடைமுகத்தை புரிந்து கொள்ளவும்:</strong> 3 கார்டுகள் உள்ளன — இடது (தரவு உள்ளீடு), நடு (சுத்திகரிப்பு & மாதிரி), வலது (காட்சிப்படுத்தல்). ➔ அம்புகள் இணைக்கின்றன.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>மொழி மாற்றம்:</strong> தலைப்பு பட்டையில் "தமிழ்" அல்லது "English" பொத்தானை கிளிக் செய்து மொழியை மாற்றவும்.
+                </div>
+            </div>
+
+            <div class="screenshot">
+                <img src="screenshots/05-tamil-language.png" alt="Tamil Language">
+                <div class="screenshot-caption">📸 தமிழ் மொழி இடைமுகம்</div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 குறிப்பு:</strong> முதலில் அத்தியாயம் 1 & 2 படியுங்கள் — இடைமுகத்தை புரிந்து கொள்ள
+            </div>
+        </div>
+
+        <!-- Section 2: Loading Data -->
+        <div class="section" id="section2">
+            <h2>2. டேட்டா ஏற்றுதல் (Loading Data)</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>மாதிரி டேட்டாசெட் ஏற்றுதல்:</strong> Card 1 இல் உள்ள மாதிரி டேட்டாசெட் பொத்தான்களில் ஒன்றை கிளிக் செய்யவும் (எ.கா., "Messy Exam Marks")
+                </div>
+            </div>
+
+            <div class="screenshot">
+                <img src="screenshots/02-data-loaded.png" alt="Data Loaded">
+                <div class="screenshot-caption">📸 டேட்டா ஏற்றப்பட்டது — அழுக்கு டேட்டா எச்சரிக்கைகளுடன்</div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>டேட்டா அட்டவணை:</strong> ஏற்றப்பட்ட டேட்டா அட்டவணையில் காட்டப்படும். மஞ்சள்/சிவப்பு/ஆரஞ்சு நிற செல்கள் அழுக்கு டேட்டாவை குறிக்கும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>CSV பதிவேற்றம்:</strong> "CSV Upload / Paste" பகுதியில் .csv கோப்பை பதிவேற்றவும் அல்லது CSV டேட்டாவை paste செய்து "Load Data" கிளிக் செய்யவும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>செல் திருத்தம்:</strong> எந்த செல்லையும் கிளிக் செய்து திருத்தலாம். "+ Add Row" மற்றும் "×" பொத்தான்கள் மூலம் வரிகளை சேர்க்க/நீக்கலாம்.
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 குறிப்பு:</strong> அழுக்கு டேட்டா எச்சரிக்கைகள்: 🟡 மஞ்சள் = விடுபட்ட மதிப்பு, 🔴 சிவப்பு = இரட்டிப்பு, 🟠 ஆரஞ்சு = வெளிப்புற மதிப்பு
+            </div>
+        </div>
+
+        <!-- Section 3: Data Cleaning -->
+        <div class="section" id="section3">
+            <h2>3. டேட்டா சுத்திகரிப்பு (Data Cleaning)</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>செட்டிங்ஸ் விரிவாக்கம்:</strong> Card 2 இல் "Show Settings ▼" பொத்தானை கிளிக் செய்து செட்டிங்ஸ் விரிவாக்கவும்.
+                </div>
+            </div>
+
+            <div class="screenshot">
+                <img src="screenshots/03-settings-expanded.png" alt="Settings Expanded">
+                <div class="screenshot-caption">📸 செட்டிங்ஸ் விரிவாக்கம் — Cleaning, Methods, Advanced</div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>Fix Missing Values:</strong> "Fix Missing Values" toggle ஐ இயக்கவும். விடுபட்ட எண் மதிப்புகள் காலம் சராசரியால் நிரப்பப்படும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Remove Duplicates & Outliers:</strong> "Remove Duplicates & Outliers" toggle ஐ இயக்கவும். இரட்டிப்பு வரிகள் நீக்கப்பட்டு, வெளிப்புற மதிப்புகள் IQR முறையில் கட்டுப்படுத்தப்படும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>நிலை பட்டை:</strong> சுத்திகரிப்பு முடிந்ததும் நிலை பட்டையில் சுருக்கம் காட்டப்படும் (எ.கா., "2 missing values fixed. 1 duplicates removed.")
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 குறிப்பு:</strong> சுத்திகரிப்பு இல்லாமலும் மாதிரியை இயக்கலாம். ஆனால் சுத்திகரிக்கப்பட்ட டேட்டா சிறந்த முடிவுகளை தரும்.
+            </div>
+        </div>
+
+        <!-- Section 4: Model Training -->
+        <div class="section" id="section4">
+            <h2>4. மாதிரி உருவாக்கம் (Model Training)</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>முறை தேர்வு:</strong> "Mining Method" பகுதியில் விரும்பிய முறையை தேர்வு செய்யவும் (எ.கா., Group & Summarize, Trend & Prediction, Classification, Clustering)
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>மேம்பட்ட முறைகள்:</strong> "More Methods" பகுதியில் Association Rules, Decision Tree, Naive Bayes, Imputation, Normalization, Outlier Demo ஆகியவை உள்ளன.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Advanced Settings:</strong> "Advanced Settings ▼" கிளிக் செய்து K value (Clustering) தேர்வு செய்யவும் (2, 3, அல்லது 4)
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>பயிற்சி:</strong> "Train / Run Model" பொத்தானை கிளிக் செய்யவும். ப்ரோக்ரஸ் பார் அனிமேஷன் முடியும் வரை காத்திருக்கவும் (1.5 விநாடிகள்)
+                </div>
+            </div>
+
+            <div class="screenshot">
+                <img src="screenshots/04-training-result.png" alt="Training Result">
+                <div class="screenshot-caption">📸 பயிற்சி முடிவு — சார்ட் + நேரடி பரிசோதனை + கண்டுபிடிப்பு</div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 குறிப்பு:</strong> சரியான டேட்டாசெட்டை தேர்வு செய்யவும் — ஒவ்வொரு முறைக்கும் பொருத்தமான டேட்டாசெட் உள்ளது. லேப் கைட் பார்க்கவும்.
+            </div>
+        </div>
+
+        <!-- Section 5: Visualization -->
+        <div class="section" id="section5">
+            <h2>5. காட்சிப்படுத்தல் (Visualization)</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>டைனமிக் சார்ட்:</strong> Card 3 இல் சார்ட் தானாகவே தேர்வு செய்யப்பட்ட முறைக்கு ஏற்ற வகையில் மாறும். மவுஸை ஹோவர் செய்தால் டூல்டிப் காட்டும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>கண்டுபிடிப்பு பெட்டி (Insight Box):</strong> மாதிரி இயக்கியதும் தானாகவே ஒரு கண்டுபிடிப்பு பெட்டி காட்டப்படும் — தொடர்பு வகை, சுத்திகரிப்பு தாக்கம், முறை-சார்ந்த விளக்கம்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>டேட்டா ப்ரொஃபைல்:</strong> "Data Profile ▼" கிளிக் செய்து ஒவ்வொரு காலத்தின் Summary Statistics (Type, Count, Missing, Unique, Mean, Min, Max) பார்க்கவும்.
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 குறிப்பு:</strong> Export PNG பொத்தான் மூலம் சார்ட்டை PNG ஆக சேமிக்கலாம். Export CSV மூலம் டேட்டாவை CSV ஆக சேமிக்கலாம்.
+            </div>
+        </div>
+
+        <!-- Section 6: Live Testing -->
+        <div class="section" id="section6">
+            <h2>6. நேரடி பரிசோதனை (Live Testing)</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>ஸ்லைடர்கள்:</strong> Card 3 இல் "Live Test Panel" காட்டப்படும். ஒவ்வொரு முறைக்கும் தனி ஸ்லைடர்கள் இருக்கும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>நேரடி கணிப்பு:</strong> ஸ்லைடரை இழுக்கும்போது கணிப்பு உடனடியாக மாறும். சார்ட்டில் கருப்பு புள்ளி நகரும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>நம்பிக்கை பார்கள் (Classification):</strong> ஒவ்வொரு வகுப்பிற்கும் நம்பிக்கை சதவீதம் அனிமேஷன் மூலம் காட்டப்படும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>Naive Bayes Classify:</strong> Word1, Word2, Word3 மதிப்புகளை 0/1 ஆக மாற்றி "Classify" பொத்தானை கிளிக் செய்யவும்.
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 குறிப்பு:</strong> ஸ்லைடர்களை மெதுவாக இழுத்து முடிவுகள் எவ்வாறு மாறுகின்றன என்று கவனிக்கவும். இது மாதிரியின் நடத்தையை புரிந்து கொள்ள உதவும்.
+            </div>
+        </div>
+
+        <!-- Section 7: Advanced Features -->
+        <div class="section" id="section7">
+            <h2>7. மேம்பட்ட அம்சங்கள் (Advanced Features)</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>Export CSV:</strong> Header bar இல் "Export CSV" பொத்தானை கிளிக் செய்து டேட்டாவை CSV ஆக டவுன்லோட் செய்யவும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>Export PNG:</strong> Header bar இல் "Export PNG" பொத்தானை கிளிக் செய்து சார்ட்டை PNG ஆக டவுன்லோட் செய்யவும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Print Report:</strong> Header bar இல் "Print" பொத்தானை கிளிக் செய்து முடிவுகளை அச்சிடவும் அல்லது PDF ஆக சேமிக்கவும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>Data Validation:</strong> CSV ஒட்டும்போது தானாகவே பிழைகள் கண்டறியப்படும் (duplicate rows, empty headers, missing columns).
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <strong>Data Profile:</strong> "Data Profile ▼" கிளிக் செய்து ஒவ்வொரு காலத்தின் Type, Count, Missing, Unique, Mean, Min, Max பார்க்கவும்.
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 குறிப்பு:</strong> Print செய்யும்போது தேவையற்ற பகுதிகள் (buttons, toggles) தானாக மறைக்கப்படும் (@media print CSS).
+            </div>
+        </div>
+
+        <!-- Section 8: Lab Exercises -->
+        <div class="section" id="section8">
+            <h2>8. பயிற்சி தட்டங்கள் (Lab Exercises)</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>லேப் கைட் திறக்க:</strong> தலைப்பு பட்டையில் "Lab Guide" பொத்தானை கிளிக் செய்து 12 பயிற்சி தட்டங்களை பார்க்கவும்.
+                </div>
+            </div>
+
+            <div class="screenshot">
+                <img src="screenshots/06-lab-guide.png" alt="Lab Guide">
+                <div class="screenshot-caption">📸 லேப் கைட் — 12 பயிற்சி தட்டங்கள்</div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>பயிற்சி தேர்வு:</strong> 12 பயிற்சிகளில் ஒன்றை தேர்வு செய்யவும். ஒவ்வொன்றும் படிப்படியான வழிமுறைகளை கொண்டுள்ளது.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>பயிற்சி செய்தல்:</strong> பயிற்சியில் கூறப்பட்ட டேட்டாசெட்டை ஏற்றி, முறையை தேர்வு செய்து, மாதிரியை இயக்கவும்.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>கேள்விகளுக்கு பதில்:</strong> ஒவ்வொரு பயிற்சியிலும் கேள்விகள் உள்ளன. அவற்றுக்கு பதில் கண்டறியவும்.
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💡 குறிப்பு:</strong> 24 விரிவான பயிற்சி தட்டங்கள் `DataLab-Junior-Lab-Exercises.md` கோப்பில் உள்ளன. VS Code இல் திறந்து படிக்கவும்.
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})">⬆️ மேலே (Top)</button>
+            <button onclick="window.print()">🖨️ அச்சிடு (Print)</button>
+        </div>
+    </div>
+
+    <script>
+        // Update progress bar on scroll
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / docHeight) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        });
+    </script>
+</body>
+</html>
